@@ -94,4 +94,77 @@ bool compare_by_b(pair<int, int> a, pair<int, int> b) {
 }
 
 //---------------------------------------------------
+const int max_n = 105;
+int dp[max_n][max_n][3 * max_n];
+int n, W;
+int w[max_n], v[max_n];
 
+//dp[i][j][k] := バッグにi個の荷物が入っており、j番目まで見た状態で、超過分がkである時の
+//価値の最大値(1-indexで数える)
+void solve() {
+	rep(j, n) {
+		rep(k, 3 * max_n) dp[0][j][k] = 0;
+	}
+
+	/*
+	for (int i = 0; i <= n - 1; i++) { //i+1を更新することを考える
+		int remain = W - w[1] * i;
+		for (int j = i; j <= n - 1; j++) { //j+1番目の荷物を入れるかどうか
+			int exc = w[j + 1] - w[1];
+			for (int k = 0; k < 3 * max_n; k++) {
+				//j+1番目の荷物が入らないとき
+				if (remain - k < w[j + 1]) {
+					dp[i + 1][j + 1][k] = dp[i][j][k];
+				}
+				//j+1番目の荷物が入るとき
+				else {
+					dp[i + 1][j + 1][k + exc] = max(dp[i][j][k + exc], dp[i][j][k] + v[j + 1]);
+				}
+			}
+		}
+	}
+	*/
+
+	for (int j = 0; j <= n - 1; j++) { //j+1番目の荷物を入れるかどうか
+		for (int i = 0; i <= j; i++) { //i+1を更新することを考える
+			int remain = W - w[1] * i;
+			int exc = w[j + 1] - w[1];
+			for (int k = 0; k < 3 * max_n; k++) {
+				//j+1番目の荷物が入らないとき
+				if (remain - k < w[j + 1]) {
+					dp[i + 1][j + 1][k] = dp[i][j][k];
+				}
+				//j+1番目の荷物が入るとき
+				else {
+					dp[i + 1][j + 1][k + exc] = max(dp[i][j][k + exc], dp[i][j][k] + v[j + 1]);
+				}
+			}
+		}
+	}
+
+	int ans = -1;
+	for (int i = 0; i <= n; i++) {
+		for (int k = 0; k <= 3 * (n - 1); k++) {
+			ans = max(dp[i][n][k], ans);
+			cout << dp[i][n][k] << " ";
+		}
+		cout << endl;
+	}
+	cout << ans << endl;
+
+}
+
+int main() {
+	//int a = in<int>(); string b = in<string>(); char c = in<char>();
+	//double d = in<double>();
+	//(void)scanf("%d",&);
+
+	cin >> n >> W;
+	repa(i, n) {
+		cin >> w[i] >> v[i];
+	}
+
+	(void)solve();
+
+	return 0;
+}
